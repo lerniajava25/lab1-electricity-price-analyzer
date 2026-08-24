@@ -1,5 +1,7 @@
 package org.example;
 
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.net.URI;
@@ -8,6 +10,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 //Datanhämtning med Javas inbyggd HttpClient
 public class Main {
@@ -15,7 +18,7 @@ public class Main {
         HttpClient httpClient = HttpClient
                 .newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
-                .version(HttpClient.Version.HTTP_2)
+                .version(HttpClient.Version.HTTP_3)
                 .build();
 
         // Anpassa URL:en till aktuellt datum istället för ett hårdkodat datum
@@ -44,6 +47,15 @@ public class Main {
         }
         IO.println("HTTP GET: " + response.body());
 
+        //Create POJO from json => Konverterar JSON-svaret till en array av ElectricityPrice-objekt med Jackson
+        ObjectMapper mapper = new ObjectMapper();
+
+        List<ElectricityPrice> prices = mapper.readValue(
+                response.body(),
+                new TypeReference<List<ElectricityPrice>>() {}
+        );
+        System.out.println(prices);
+    }
 
         // Datamodell för ett elpris från api:et (objekt struktur beskrivning)
         record ElectricityPrice(double SEK_per_kWh,
@@ -52,6 +64,6 @@ public class Main {
                                 OffsetDateTime time_start,
                                 OffsetDateTime time_end) {
 
-        }
+
     }
 }
