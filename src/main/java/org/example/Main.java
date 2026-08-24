@@ -20,6 +20,11 @@ public class Main {
                 .build();
 
         var response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) {
+            IO.println("Fel vid hämtning av elpriser. HTTP-status: "
+                    + response.statusCode());
+            return;
+        }
         IO.println("HTTP GET: " + response.body());
 
 
