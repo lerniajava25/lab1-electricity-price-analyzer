@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -16,7 +17,8 @@ public class Main {
     static void main() throws IOException, InterruptedException {
         HttpClient httpClient = HttpClient
                 .newBuilder()
-                .version(HttpClient.Version.HTTP_3)
+                .connectTimeout(Duration.ofSeconds(10))
+                .version(HttpClient.Version.HTTP_2)
                 .build();
 
         // Anpassa URL:en till aktuellt datum istället för ett hårdkodat datum
@@ -34,9 +36,8 @@ public class Main {
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(url))
+                .timeout(Duration.ofSeconds(10))
                 .build();
-
-
 
         var response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() != 200) {
@@ -45,7 +46,6 @@ public class Main {
             return;
         }
         IO.println("HTTP GET: " + response.body());
-
 
 
         // Datamodell för ett elpris från api:et (objekt struktur beskrivning)
