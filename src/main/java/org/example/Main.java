@@ -6,10 +6,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 
 //Datanhämtning med Javas inbyggd HttpClient
@@ -52,8 +49,8 @@ public class Main {
         record ElectricityPrice(double SEK_per_kWh,
                                 double EUR_per_kWh,
                                 double EXR,
-                                LocalDateTime time_start,
-                                LocalDateTime time_end) {
+                                OffsetDateTime time_start,
+                                OffsetDateTime time_end) {
 
         }
     }
