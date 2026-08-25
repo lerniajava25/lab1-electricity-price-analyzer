@@ -10,6 +10,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 
 //Datanhämtning med Javas inbyggd HttpClient
@@ -26,9 +27,7 @@ public class Main {
 
         DateTimeFormatter formatter =
                 DateTimeFormatter.ofPattern("yyyy/MM-dd");
-
         String date = today.format(formatter);
-
         String url =
                 "https://www.elprisetjustnu.se/api/v1/prices/"
                         + date
@@ -54,7 +53,7 @@ public class Main {
                 response.body(),
                 new TypeReference<List<ElectricityPrice>>() {
                 }
-                );
+        );
 
         //Kod för att få fram Meny & Interaktivitet
         String choice = "";
@@ -68,10 +67,54 @@ public class Main {
 
             choice = IO.readln("Välj ett alternativ (1-4 eller E för att avsluta): ");
 
-        //Felhantering vid ongiltig inmatning
+            //Felhantering vid ongiltig inmatning
             if (!choice.matches("[1-4eE]")) {
                 IO.println("Ogiltigt alternativ! Försök igen.");
-        }
+            }
+
+            //Elprisanalys
+            double minPrice = prices.get(0).SEK_per_kWh();
+            double maxPrice = prices.get(0).SEK_per_kWh();
+            double sum = 0;
+
+            for (int i = 0; i < prices.size(); i++) {
+                double price = prices.get(i).SEK_per_kWh();
+                if (price < minPrice) {
+                    minPrice = price;
+                }
+                if (price > maxPrice) {
+                    maxPrice = price;
+                }
+                sum += price;
+            }
+            double averagePrice = sum / prices.size();
+            switch (choice.toLowerCase()) {
+                case "1" -> {
+                    for (int i = 0; i < prices.size(); i++) {
+                        IO.println(prices.get(i));
+                    }
+                }
+                //Min, Max och Medelpris
+                case "2" -> {
+                    IO.println("Lägsta pris: %.2f öre/kWh".formatted(minPrice * 100));
+                    IO.println("Högsta pris: %.2f öre/kWh".formatted(maxPrice * 100));
+                    IO.println("Medelpris: %.2f öre/kWh".formatted(averagePrice * 100));
+                }
+
+                //Sortera priser (lägst till högst)
+                case "3" ->  {prices.sort(Comparator.comparingDouble(ElectricityPrice::SEK_per_kWh));
+                    IO.println( "Sortering av elpriser (lägst till högst) ");
+                    for(ElectricityPrice price : prices) {
+                        IO.println(
+                                price.time_start().format(DateTimeFormatter.ofPattern("HH:mm"))
+                                        + "-%.2f öre/kWh".formatted(price.SEK_per_kWh() * 100));
+                    }
+                }
+                case "4" -> IO.println("Bästa laddningstid är inte implementerad ännu.");
+                case "e" -> IO.println("Programmet avslutas");
+                default -> IO.println("Ogiltigt val");
+
+            }
         }
     }
 
