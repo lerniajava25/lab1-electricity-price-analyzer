@@ -70,9 +70,15 @@ public class Main {
             //Felhantering vid ongiltig inmatning
             if (!choice.matches("[1-4eE]")) {
                 IO.println("Ogiltigt alternativ! Försök igen.");
+                continue;
             }
 
             //Elprisanalys
+            if (prices.isEmpty()) {
+                IO.println("Inga elpriser att analysera.");
+                continue;
+            }
+
             double minPrice = prices.get(0).SEK_per_kWh();
             double maxPrice = prices.get(0).SEK_per_kWh();
             double sum = 0;
