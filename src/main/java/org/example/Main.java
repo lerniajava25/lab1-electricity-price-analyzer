@@ -68,6 +68,10 @@ public class Main {
 
             choice = IO.readln("Välj ett alternativ (1-4 eller E för att avsluta): ");
 
+        //Felhantering vid ongiltig inmatning
+            if (!choice.matches("[1-4eE]")) {
+                IO.println("Ogiltigt alternativ! Försök igen.");
+        }
         }
     }
 
