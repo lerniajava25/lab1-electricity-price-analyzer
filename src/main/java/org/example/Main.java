@@ -47,23 +47,35 @@ public class Main {
         }
         IO.println("HTTP GET: " + response.body());
 
-        //Create POJO from json => Konverterar JSON-svaret till en array av ElectricityPrice-objekt med Jackson
+        //Create POJO from json => Konverterar JSON-svaret till en list av ElectricityPrice-objekt med Jackson
         ObjectMapper mapper = new ObjectMapper();
 
         List<ElectricityPrice> prices = mapper.readValue(
                 response.body(),
-                new TypeReference<List<ElectricityPrice>>() {}
-        );
-        System.out.println(prices);
+                new TypeReference<List<ElectricityPrice>>() {
+                }
+                );
+
+        //Kod för att få fram Meny & Interaktivitet
+        String choice = "";
+        while (!choice.equalsIgnoreCase("e")) {
+            IO.println("Elpriser – Analysverktyg");
+            IO.println("1. Visa elpriser");
+            IO.println("2. Visa lägsta, högsta och medel pris");
+            IO.println("3. Sortera priser (lägst till högst)");
+            IO.println("4. Visa bästa laddningstid (4h sammanhängande)");
+            IO.println("E. Avsluta");
+
+            choice = IO.readln("Välj ett alternativ (1-4 eller E för att avsluta): ");
+
+        }
     }
 
-        // Datamodell för ett elpris från api:et (objekt struktur beskrivning)
-        record ElectricityPrice(double SEK_per_kWh,
-                                double EUR_per_kWh,
-                                double EXR,
-                                OffsetDateTime time_start,
-                                OffsetDateTime time_end) {
-
-
+    // Datamodell för ett elpris från api:et (objekt struktur beskrivning)
+    record ElectricityPrice(double SEK_per_kWh,
+                            double EUR_per_kWh,
+                            double EXR,
+                            OffsetDateTime time_start,
+                            OffsetDateTime time_end) {
     }
 }
