@@ -108,20 +108,60 @@ public class Main {
                 }
 
                 //Sortera priser (lägst till högst)
-                case "3" ->  {prices.sort(Comparator.comparingDouble(ElectricityPrice::SEK_per_kWh));
-                    IO.println( "Sortering av elpriser (lägst till högst) ");
-                    for(ElectricityPrice price : prices) {
+                case "3" -> {
+                    prices.sort(Comparator.comparingDouble(ElectricityPrice::SEK_per_kWh));
+                    IO.println("Sortering av elpriser (lägst till högst) ");
+                    for (ElectricityPrice price : prices) {
                         IO.println(
                                 price.time_start().format(DateTimeFormatter.ofPattern("HH:mm"))
-                                        + "-%.2f öre/kWh".formatted(price.SEK_per_kWh() * 100));
+                                        + " --> %.2f öre/kWh".formatted(price.SEK_per_kWh() * 100));
                     }
                 }
-                case "4" -> IO.println("Bästa laddningstid är inte implementerad ännu.");
+                case "4" -> showBestChargingTime(prices);
                 case "e" -> IO.println("Programmet avslutas");
                 default -> IO.println("Ogiltigt val");
-
             }
         }
+    }
+
+    // Sliding Window
+    static void showBestChargingTime(List<ElectricityPrice> prices) {
+        // API-priserna är i 15 minutersintervall. 4 h = 16 x 15 min.
+        int windowSize = 16;
+        double currentSum = 0;
+
+        // Första 4-timmarsperioden
+        for (int i = 0; i < windowSize; i++) {
+            currentSum += prices.get(i).SEK_per_kWh();
+        }
+        double lowestSum = currentSum;
+        int bestStartIndex = 0;
+
+        // Flytta fönstret 15 minuter i taget
+        for (int i = windowSize; i < prices.size(); i++) {
+
+            currentSum -= prices.get(i - windowSize).SEK_per_kWh();
+            currentSum += prices.get(i).SEK_per_kWh();
+
+            if (currentSum < lowestSum) {
+                lowestSum = currentSum;
+                bestStartIndex = i - windowSize + 1;
+            }
+        }
+        ElectricityPrice startPrice = prices.get(bestStartIndex);
+        ElectricityPrice endPrice = prices.get(bestStartIndex + windowSize - 1);
+
+        double averagePrice = lowestSum / windowSize;
+
+        IO.println(
+                "Bästa laddningstid: "
+                        + startPrice.time_start().format(DateTimeFormatter.ofPattern("HH:mm"))
+                        + " - "
+                        + endPrice.time_end().format(DateTimeFormatter.ofPattern("HH:mm")));
+
+        IO.println(
+                "Medelpris: %.2f öre/kWh"
+                        .formatted(averagePrice * 100));
     }
 
     // Datamodell för ett elpris från api:et (objekt struktur beskrivning)
