@@ -10,6 +10,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -107,11 +108,14 @@ public class Main {
                     IO.println("Medelpris: %.2f öre/kWh".formatted(averagePrice * 100));
                 }
 
-                //Sortera priser (lägst till högst)
+                //Sortera priser (lägst till högst), genom att först skapa en kopia "sortedPrices"
                 case "3" -> {
-                    prices.sort(Comparator.comparingDouble(ElectricityPrice::SEK_per_kWh));
+                    List<ElectricityPrice> sortedPrices = new ArrayList<>(prices);
+                    sortedPrices.sort(
+                            Comparator.comparingDouble(ElectricityPrice::SEK_per_kWh)
+                    );
                     IO.println("Sortering av elpriser (lägst till högst) ");
-                    for (ElectricityPrice price : prices) {
+                    for (ElectricityPrice price : sortedPrices) {
                         IO.println(
                                 price.time_start().format(DateTimeFormatter.ofPattern("HH:mm"))
                                         + " --> %.2f öre/kWh".formatted(price.SEK_per_kWh() * 100));
@@ -128,6 +132,12 @@ public class Main {
     static void showBestChargingTime(List<ElectricityPrice> prices) {
         // API-priserna är i 15 minutersintervall. 4 h = 16 x 15 min.
         int windowSize = 16;
+
+        //Att hantera listor som är kortare än fyra timmar
+        if (prices.size() < windowSize) {
+            IO.println("Det finns inte tillräckligt med priser för att beräkna 4 timmar.");
+            return;
+        }
         double currentSum = 0;
 
         // Första 4-timmarsperioden
