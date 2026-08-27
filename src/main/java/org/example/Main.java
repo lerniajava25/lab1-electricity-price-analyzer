@@ -52,9 +52,8 @@ import java.util.List;
             if (response.statusCode() != 200) {
                 IO.println("Fel vid hämtning av elpriser. HTTP-status: "
                         + response.statusCode());
-
+                return new ArrayList<>();
             }
-            IO.println("HTTP GET: " + response.body());
 
             //1.2 Create POJO from json => Konverterar JSON-svaret till en list av ElectricityPrice-objekt med Jackson
             ObjectMapper mapper = new ObjectMapper();
