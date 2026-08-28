@@ -67,6 +67,11 @@ public class Main {
                 new TypeReference<List<ElectricityPrice>>() {
                 }
         );
+
+        if (prices == null) {
+            return new ArrayList<>();
+        }
+
         return prices;
     }
 
