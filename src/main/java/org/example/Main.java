@@ -18,10 +18,9 @@ import java.util.Scanner;
 
 public class Main {
 
-    static void main() throws IOException, InterruptedException {
+    static void main() {
         showMenu();
     }
-
     //1.1 API-Integration
     // Datanhämtning med Javas inbyggd HttpClient
     static List<ElectricityPrice> showApiIntegration(String selectedArea)
@@ -79,7 +78,7 @@ public class Main {
     }
 
     //Meny & Interaktivitet
-    static void showMenu() throws IOException, InterruptedException {
+    static void showMenu()  {
 
         Scanner scanner = new Scanner(System.in);
 
@@ -106,11 +105,19 @@ public class Main {
                     String area = scanner.nextLine().toUpperCase();
 
                     if (isValidArea(area)) {
-                        selectedArea = area;
-                        prices = showApiIntegration(selectedArea);
 
-                        IO.println("Elområde ändrat till " + selectedArea);
-                        showPrices(prices);
+                        List<ElectricityPrice> newPrices = fetchPricesSafely(area);
+
+                        if (!newPrices.isEmpty()) {
+                            selectedArea = area;
+                            prices = newPrices;
+
+                            IO.println("Elområde ändrat till " + selectedArea);
+                            showPrices(prices);
+                        } else {
+                            IO.println("Inga elpriser kunde hämtas för " + area + ".");
+                        }
+
                     } else {
                         IO.println("Ogiltigt elområde.");
                     }
@@ -138,6 +145,20 @@ public class Main {
         }
     }
 
+    static List<ElectricityPrice> fetchPricesSafely(String area) {
+        try {
+            return showApiIntegration(area);
+
+        } catch (IOException e) {
+            IO.println("Kunde inte hämta elpriser. Kontrollera nätverksanslutningen.");
+            return new ArrayList<>();
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            IO.println("Hämtningen avbröts.");
+            return new ArrayList<>();
+        }
+    }
     static boolean hasPrices(List<ElectricityPrice> prices) {
         if (prices.isEmpty()) {
             IO.println("Välj först ett elområde.");
