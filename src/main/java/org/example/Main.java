@@ -33,8 +33,8 @@ public class Main {
                 .version(HttpClient.Version.HTTP_3)
                 .build();
 
-        //Anpassa URL:en till aktuellt datum istället för ett hårdkodat datum
-        LocalDate today = LocalDate.now();
+        // Anpassa URL:en till aktuellt datum enligt svensk tidszon
+        LocalDate today = LocalDate.now(ZoneId.of("Europe/Stockholm"));
 
         DateTimeFormatter formatter =
                 DateTimeFormatter.ofPattern("yyyy/MM-dd");
